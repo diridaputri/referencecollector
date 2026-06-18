@@ -1,0 +1,17 @@
+[
+null,
+{"id":1,"battlerName":"","characterIndex":0,"characterName":"$Karakter Utama Siswa Laki-Laki","classId":1,"equips":[0,0,0,3,0],"faceIndex":0,"faceName":"Karakter lengkap","traits":[],"initialLevel":1,"maxLevel":1,"name":"Laki-Laki","nickname":"","note":"","profile":""},
+{"id":2,"battlerName":"","characterIndex":0,"characterName":"$Karakter Utama Siswa Perempuan","classId":1,"equips":[2,0,0,0,0],"faceIndex":1,"faceName":"Karakter lengkap","traits":[],"initialLevel":1,"maxLevel":1,"name":"Perempuan","nickname":"","note":"","profile":""},
+{"id":3,"battlerName":"","characterIndex":7,"characterName":"$Karakter Guru","classId":2,"equips":[3,0,0,0,0],"faceIndex":6,"faceName":"Wajah karakter","traits":[],"initialLevel":1,"maxLevel":99,"name":"Bapak Guru","nickname":"","note":"","profile":""},
+{"id":4,"battlerName":"","characterIndex":6,"characterName":"$Karakter Pustakawan","classId":3,"equips":[4,0,0,0,0],"faceIndex":7,"faceName":"Wajah karakter","traits":[],"initialLevel":1,"maxLevel":99,"name":"Pustakawan","nickname":"","note":"","profile":""},
+{"id":5,"battlerName":"","characterIndex":0,"characterName":"$NPC Siswa 1","classId":1,"equips":[0,0,0,0,0],"faceIndex":1,"faceName":"","traits":[],"initialLevel":1,"maxLevel":99,"name":"NPC Siswa 1","nickname":"","note":"","profile":""},
+{"id":6,"battlerName":"","characterIndex":0,"characterName":"$NPC Siswa 2","classId":1,"equips":[0,0,0,0,0],"faceIndex":0,"faceName":"","traits":[],"initialLevel":1,"maxLevel":99,"name":"NPC Siswa 2","nickname":"","note":"","profile":""},
+{"id":7,"battlerName":"","characterIndex":0,"characterName":"$NPC Siswa 3","classId":1,"equips":[0,0,0,0,0],"faceIndex":7,"faceName":"","traits":[],"initialLevel":1,"maxLevel":99,"name":"NPC Siswa 3","nickname":"","note":"","profile":""},
+{"id":8,"battlerName":"","characterIndex":0,"characterName":"$NPC Siswa 4","classId":1,"equips":[0,0,0,0,0],"faceIndex":6,"faceName":"","traits":[],"initialLevel":1,"maxLevel":99,"name":"NPC Siswa 4","nickname":"","note":"","profile":""},
+{"id":9,"battlerName":"","characterIndex":0,"characterName":"$NPC Siswa 5","classId":1,"equips":[0,0,0,0,0],"faceIndex":0,"faceName":"","traits":[],"initialLevel":1,"maxLevel":99,"name":"NPC Siswa 5","nickname":"","note":"","profile":""},
+{"id":10,"battlerName":"","characterIndex":0,"characterName":"$NPC Siswa 6","classId":1,"equips":[0,0,0,0,0],"faceIndex":0,"faceName":"","traits":[],"initialLevel":1,"maxLevel":99,"name":"NPC Siswa 6","nickname":"","note":"","profile":""},
+{"id":11,"battlerName":"","characterIndex":0,"characterName":"$NPC Siswa 7","classId":1,"equips":[0,0,0,0,0],"faceIndex":0,"faceName":"","traits":[],"initialLevel":1,"maxLevel":99,"name":"NPC Siswa 7","nickname":"","note":"","profile":""},
+{"id":12,"battlerName":"","characterIndex":0,"characterName":"$NPC Siswa 8","classId":1,"equips":[0,0,0,0,0],"faceIndex":0,"faceName":"","traits":[],"initialLevel":1,"maxLevel":99,"name":"NPC Siswa 8","nickname":"","note":"","profile":""},
+{"id":13,"battlerName":"","characterIndex":0,"characterName":"$NPC Siswa 9","classId":1,"equips":[0,0,0,0,0],"faceIndex":0,"faceName":"","traits":[],"initialLevel":1,"maxLevel":99,"name":"NPC Siswa 9","nickname":"","note":"","profile":""},
+{"id":14,"battlerName":"","characterIndex":0,"characterName":"$NPC Siswa 10","classId":1,"equips":[0,0,0,0,0],"faceIndex":0,"faceName":"","traits":[],"initialLevel":1,"maxLevel":99,"name":"NPC Siswa 10","nickname":"","note":"","profile":""}
+]

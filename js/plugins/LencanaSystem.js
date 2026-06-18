@@ -1,0 +1,227 @@
+//=============================================================================
+// LencanaSystem.js  (v2 - force include items)
+//=============================================================================
+/*:
+ * @plugindesc [v2] Menu Lencana custom: 1 kategori, cursor langsung ke item,
+ * klik item munculkan gambar dari img/pictures/. Force include semua item.
+ * @author -
+ *
+ * @help
+ * CARA PAKAI:
+ * 1. Taruh file ini di folder js/plugins/.
+ * 2. Plugin Manager: aktifkan LencanaSystem.
+ * 3. PENTING: posisikan plugin ini PALING BAWAH di daftar plugin
+ *    (di bawah semua YEP/MOG).
+ * 4. Di Database > Items > kolom Note, tambahkan note tag:
+ *
+ *        <lencana:NamaFile>
+ *
+ *    Contoh: <lencana:lencana_kamus>
+ *    Akan menampilkan img/pictures/lencana_kamus.png saat item dipilih.
+ *
+ * 5. Tutup popup dengan tombol Cancel / Esc / klik di mana saja.
+ */
+
+(function() {
+
+    //-------------------------------------------------------------------------
+    // 1. Hanya kategori "item"
+    //-------------------------------------------------------------------------
+    Window_ItemCategory.prototype.makeCommandList = function() {
+        this.addCommand(TextManager.item, 'item');
+    };
+
+    // Override maxCols supaya tidak dibagi 4 kolom — pakai full width
+    Window_ItemCategory.prototype.maxCols = function() {
+        return 1;
+    };
+
+    //-------------------------------------------------------------------------
+    // 2. FORCE: window item di menu Lencana akan include semua regular item
+    //    (mengabaikan plugin lain yang mengubah filter kategori)
+    //-------------------------------------------------------------------------
+    var _Window_ItemList_includes = Window_ItemList.prototype.includes;
+    Window_ItemList.prototype.includes = function(item) {
+        if (this._lencanaMode) {
+            // tampilkan semua item (DataItem) — termasuk key item kalau ada
+            return DataManager.isItem(item);
+        }
+        return _Window_ItemList_includes.call(this, item);
+    };
+
+    // Semua item dianggap "enabled" (bisa dipilih) di mode Lencana
+    var _Window_ItemList_isEnabled = Window_ItemList.prototype.isEnabled;
+    Window_ItemList.prototype.isEnabled = function(item) {
+        if (this._lencanaMode) return true;
+        return _Window_ItemList_isEnabled.call(this, item);
+    };
+
+    //-------------------------------------------------------------------------
+    // 3. Setup Scene_Item: skip kategori, force activate item window
+    //-------------------------------------------------------------------------
+    var _Scene_Item_createCategoryWindow = Scene_Item.prototype.createCategoryWindow;
+    Scene_Item.prototype.createCategoryWindow = function() {
+        _Scene_Item_createCategoryWindow.call(this);
+        this._categoryWindow.deselect();
+        this._categoryWindow.deactivate();
+
+        // Geser window kategori "Lencana" ke atas (di bawah help window)
+        this._categoryWindow.y = this._helpWindow.y = 0;
+    };
+
+    // Sembunyikan help window (window kosong di atas) supaya tidak overlap
+    var _Scene_Item_createHelpWindow = Scene_ItemBase.prototype.createHelpWindow;
+    Scene_ItemBase.prototype.createHelpWindow = function() {
+        _Scene_Item_createHelpWindow.call(this);
+        if (this instanceof Scene_Item) {
+            this._helpWindow.visible = false;
+            this._helpWindow.height = 0;
+        }
+    };
+
+    // Override drawItem di category window: teks rata tengah
+    Window_ItemCategory.prototype.drawItem = function(index) {
+        var rect = this.itemRectForText(index);
+        this.resetTextColor();
+        this.changePaintOpacity(this.isCommandEnabled(index));
+        this.drawText(this.commandName(index), rect.x, rect.y, rect.width, 'center');
+    };
+
+    // Force text align center pada level Window_Command
+    Window_ItemCategory.prototype.itemTextAlign = function() {
+        return 'center';
+    };
+
+    var _Scene_Item_createItemWindow = Scene_Item.prototype.createItemWindow;
+    Scene_Item.prototype.createItemWindow = function() {
+        _Scene_Item_createItemWindow.call(this);
+        this._itemWindow._lencanaMode = true;   // aktifkan mode Lencana
+        this._itemWindow.setCategory('item');
+        this._itemWindow.refresh();
+
+        // Geser item window naik supaya nempel dengan category window di atasnya
+        this._itemWindow.y = this._categoryWindow.y + this._categoryWindow.height;
+        // Tinggi item window menyesuaikan supaya tetap nyampe bawah layar
+        this._itemWindow.height = Graphics.boxHeight - this._itemWindow.y;
+        this._itemWindow.refresh();
+    };
+
+    var _Scene_Item_start = Scene_Item.prototype.start;
+    Scene_Item.prototype.start = function() {
+        Scene_ItemBase.prototype.start.call(this);
+        this._itemWindow.refresh();
+        this._itemWindow.activate();
+        this._itemWindow.selectLast();
+    };
+
+    Scene_Item.prototype.onItemCancel = function() {
+        this.popScene();
+    };
+
+    //-------------------------------------------------------------------------
+    // 4. Klik item → tampilkan gambar
+    //-------------------------------------------------------------------------
+    Scene_Item.prototype.onItemOk = function() {
+        var item = this.item();
+        if (item && item.meta && item.meta.lencana) {
+            this.showLencanaImage(String(item.meta.lencana).trim());
+        } else {
+            // tidak ada note tag → bunyikan suara error & re-activate
+            SoundManager.playBuzzer();
+            this._itemWindow.activate();
+        }
+    };
+
+    Scene_Item.prototype.showLencanaImage = function(filename) {
+        if (!this._lencanaWindow) {
+            this._lencanaWindow = new Window_LencanaImage();
+            this._lencanaWindow.setHandler('cancel', this.onLencanaCancel.bind(this));
+            this.addWindow(this._lencanaWindow);
+        }
+        this._lencanaWindow.showImage(filename);
+        this._itemWindow.deactivate();
+    };
+
+    Scene_Item.prototype.onLencanaCancel = function() {
+        this._lencanaWindow.hideImage();
+        this._itemWindow.activate();
+    };
+
+    //-------------------------------------------------------------------------
+    // 5. Window untuk menampilkan gambar
+    //-------------------------------------------------------------------------
+    function Window_LencanaImage() {
+        this.initialize.apply(this, arguments);
+    }
+
+    Window_LencanaImage.prototype = Object.create(Window_Base.prototype);
+    Window_LencanaImage.prototype.constructor = Window_LencanaImage;
+
+    Window_LencanaImage.prototype.initialize = function() {
+        // ukuran popup window: 60% dari layar (lebih ramping)
+        var w = Math.floor(Graphics.boxWidth  * 0.6);
+        var h = Math.floor(Graphics.boxHeight * 0.6);
+        var x = (Graphics.boxWidth  - w) / 2;
+        var y = (Graphics.boxHeight - h) / 2;
+        Window_Base.prototype.initialize.call(this, x, y, w, h);
+        this._bitmap = null;
+        this._handlers = {};
+        this.openness = 0;
+        this.visible = false;
+    };
+
+    Window_LencanaImage.prototype.setHandler = function(symbol, method) {
+        this._handlers[symbol] = method;
+    };
+
+    Window_LencanaImage.prototype.callHandler = function(symbol) {
+        if (this._handlers[symbol]) {
+            this._handlers[symbol]();
+        }
+    };
+
+    Window_LencanaImage.prototype.showImage = function(filename) {
+        this._bitmap = ImageManager.loadPicture(filename);
+        this.visible = true;
+        this.open();
+        this._waitingLoad = true;
+    };
+
+    Window_LencanaImage.prototype.hideImage = function() {
+        this.contents.clear();
+        this._bitmap = null;
+        this.close();
+        var self = this;
+        setTimeout(function() { self.visible = false; }, 150);
+    };
+
+    Window_LencanaImage.prototype.update = function() {
+        Window_Base.prototype.update.call(this);
+        if (this._waitingLoad && this._bitmap && this._bitmap.isReady()) {
+            this._waitingLoad = false;
+            this.drawLencana();
+        }
+        if (this.isOpen() && this.visible) {
+            if (Input.isTriggered('ok') || Input.isTriggered('cancel') ||
+                TouchInput.isTriggered()) {
+                SoundManager.playCancel();
+                this.callHandler('cancel');
+            }
+        }
+    };
+
+    Window_LencanaImage.prototype.drawLencana = function() {
+        this.contents.clear();
+        var bmp = this._bitmap;
+        if (!bmp) return;
+        var maxW = this.contentsWidth();
+        var maxH = this.contentsHeight();
+        var scale = Math.min(maxW / bmp.width, maxH / bmp.height, 1);
+        var dw = Math.floor(bmp.width  * scale);
+        var dh = Math.floor(bmp.height * scale);
+        var dx = Math.floor((maxW - dw) / 2);
+        var dy = Math.floor((maxH - dh) / 2);
+        this.contents.blt(bmp, 0, 0, bmp.width, bmp.height, dx, dy, dw, dh);
+    };
+
+})();
